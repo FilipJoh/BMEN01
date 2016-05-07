@@ -41,6 +41,7 @@ B = fir1(100,cutFreq/(F_s/2));
 ecg_p = filtfilt(B,1,ecg_p')';
 
 %% calculations
+% Preprocessing
 
  %698;%length(t_h)-3;
 beatDuration=t(2:nbrOfBeats+1)-t(1:nbrOfBeats);
@@ -80,29 +81,17 @@ for i=1:size(ecg_p,1)
         end
         TempMed=median(tempSignalMat);
         for v=1:128
-            Best=TempMed*tempSignalMat(v,:)';
+            Best=0;
             bestStart=starts(v);
-            for u=-30:30
-                offsetVal=TempMed*heartBeatMatrix{v}(starts(v)+(u/(1000*T)):(starts(v)+u/(1000*T)-1+TwindowLength))';
+            for u=-0.03:0.001:0.03
+                offsetVal=TempMed*(heartBeatMatrix{v}((starts(v)+floor(u/T)):(starts(v)+floor(u/T)-1+TwindowLength)))';
                 if offsetVal>Best;
                     Best=offsetVal;
-                    bestStart=starts(v)+u/(1000*T);
+                    bestStart=starts(v)+u/T;
                 end    
             end
             signalMat(v+a-1,:)=heartBeatMatrix{v+a-1}(bestStart:(bestStart-1+TwindowLength));
         end
-            %temp=ecg_h(t_h(a):t_h(a+1));
-            %plot(1:length(temp),temp);
-            %temp=temp(0.06/T:0.23/T);
-            %plot(1:length(temp),temp);
-
-            %if length(temp) < maxBeatDuration
-%                 signalMat(a,1:maxBeatDuration) = interp1(temp,linspace(1,numel(temp),maxBeatDuration));
-%             else   
-%                 signalMat(a,1:length(temp))=temp;
-%             end
-%             plot((1:length(temp))*T,temp);
-
     end
 % create bandstopfilter in order to sort of respiratory signal
 [n,Wn]=buttord([0.11 0.38],[0.14 0.35],3,60);
@@ -114,7 +103,7 @@ for a=1:size(nbrOfBeats)
 end
     
     
-    
+%detextion    
     window=7;
 %     ACI=zeros(window,1);
 %     ACM=zeros(window,1);
@@ -165,7 +154,7 @@ end
     %contourf(ACMmatrix,'EdgeColor','none')
     title(['ECG-lead no: ' num2str(i)])
     xlabel('heartbeats')
-    ylabel('Alterans (On/Off)')
+    ylabel('TWA amplitude (mv)')
 %     figure;
 %     plot((1:length(temp))*T,temp);
 
