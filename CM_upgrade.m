@@ -21,17 +21,17 @@ T = 1 / F_s;
 % t=t_h;
 % nbrOfBeats=find(t<length(ecg_p),1,'last')-1;
 % threshold=1;
-% %% Pig one
-% ecg_p=ecg_p1;
-% t=t_p1;
-% nbrOfBeats=length(t)-2;
-% threshold=1e-3;
+%% Pig one
+ecg_p=ecg_p1;
+t=t_p1;
+nbrOfBeats=length(t)-2;
+threshold=1e-3;
 
 %% Pig two
-ecg_p=ecg_p2;
-t=t_p2;
-nbrOfBeats=length(t)-2; 
-threshold=0.01;
+% ecg_p=ecg_p2;
+% t=t_p2;
+% nbrOfBeats=length(t)-2; 
+% threshold=0.01;
 
 % create a lowpass filter
 cutFreq = 50; %Hz
@@ -44,20 +44,53 @@ ecg_p = filtfilt(B,1,ecg_p')';
 
  %698;%length(t_h)-3;
 beatDuration=t(2:nbrOfBeats+1)-t(1:nbrOfBeats);
+meanDuration=mean(beatDuration)*T;
 maxBeatDuration=max(beatDuration)+1;
 twave_beg = t(1) + (0.04 / T);
 twave_end = twave_beg + (0.35 / T);
-
-signalMat=zeros(nbrOfBeats,twave_end-twave_beg);
+TwindowLength=floor((0.4*sqrt(meanDuration))/T);
+tempSignalMat=zeros(128,TwindowLength);
+signalMat=zeros(nbrOfBeats,TwindowLength);%zeros(nbrOfBeats,twave_end-twave_beg);
+heartBeatMatrix=cell(nbrOfBeats,1);
+starts=zeros(128,1);
 %figure;
 %0.23
 figure;
 for i=1:size(ecg_p,1)
     ecg=ecg_p(i,:);
-    for a = 1:nbrOfBeats
-            twave_beg = t(a) + (0.06 / T);
-            twave_end = twave_beg + ((0.35-0.06) / T);
-            temp = ecg(twave_beg:twave_end);
+    for a=1:nbrOfBeats
+        heartBeatMatrix{a}=ecg(t(a):t(a+1)); 
+    end
+    
+    for a = 1:(nbrOfBeats-128)
+        for v=1:128
+            if beatDuration(a)*T<0.6
+                startoffset=0.06;
+            elseif beatDuration(a)*T<1.1
+                startoffset=0.1;    
+            else
+                startoffset=0.15;
+            end
+                    
+            twave_beg =(startoffset / T);
+            %twave_end = twave_beg + ((0.35-startoffset) / T);
+            %temp = ecg(twave_beg:twave_end);
+            tempSignalMat(v,:)=heartBeatMatrix{v}(twave_beg:(twave_beg-1+TwindowLength));
+            starts(v)=twave_beg;
+        end
+        TempMed=median(tempSignalMat);
+        for v=1:128
+            Best=TempMed*tempSignalMat(v,:)';
+            bestStart=starts(v);
+            for u=-30:30
+                offsetVal=TempMed*heartBeatMatrix{v}(starts(v)+(u/(1000*T)):(starts(v)+u/(1000*T)-1+TwindowLength))';
+                if offsetVal>Best;
+                    Best=offsetVal;
+                    bestStart=starts(v)+u/(1000*T);
+                end    
+            end
+            signalMat(v,:)=heartBeatMatrix{v}(bestStart:(bestStart-1+TwindowLength));
+        end
             %temp=ecg_h(t_h(a):t_h(a+1));
             %plot(1:length(temp),temp);
             %temp=temp(0.06/T:0.23/T);
@@ -66,10 +99,21 @@ for i=1:size(ecg_p,1)
             %if length(temp) < maxBeatDuration
 %                 signalMat(a,1:maxBeatDuration) = interp1(temp,linspace(1,numel(temp),maxBeatDuration));
 %             else   
-                signalMat(a,1:length(temp))=temp;
+%                 signalMat(a,1:length(temp))=temp;
 %             end
 %             plot((1:length(temp))*T,temp);
+
     end
+% create bandstopfilter in order to sort of respiratory signal
+[n,Wn]=buttord([0.11 0.38],[0.14 0.35],3,60);
+[B,A]=butter(n,Wn,'stop');
+% fvtool(B,A);
+
+for a=1:size(nbrOfBeats)
+    y=filtfilt(B,A,signalMat(a,:)); 
+end
+    
+    
     
     window=7;
 %     ACI=zeros(window,1);
@@ -131,8 +175,8 @@ for i=1:size(ecg_p,1)
 
 
 
-    [B,A]=butter(16,0.5,'high');
-    ACI=filter(B,A,ACI);
+    %[B,A]=butter(16,0.5,'high');
+    %ACI=filter(B,A,ACI);
 
     
     
