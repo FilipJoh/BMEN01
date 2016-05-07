@@ -16,16 +16,16 @@ T = 1 / F_s;
 
 %% TEST
 
-% %% Human
-% ecg_p=ecg_h;
-% t=t_h;
-% nbrOfBeats=find(t<length(ecg_p),1,'last')-1;
-% threshold=1;
+%% Human
+ecg_p=ecg_h;
+t=t_h;
+nbrOfBeats=find(t<length(ecg_p),1,'last')-1;
+threshold=1;
 %% Pig one
-ecg_p=ecg_p1;
-t=t_p1;
-nbrOfBeats=length(t)-2;
-threshold=1e-3;
+% ecg_p=ecg_p1;
+% t=t_p1;
+% nbrOfBeats=length(t)-2;
+% threshold=1e-3;
 
 %% Pig two
 % ecg_p=ecg_p2;
@@ -62,7 +62,7 @@ for i=1:size(ecg_p,1)
         heartBeatMatrix{a}=ecg(t(a):t(a+1)); 
     end
     
-    for a = 1:(nbrOfBeats-128)
+    for a = 1:(nbrOfBeats-127)
         for v=1:128
             if beatDuration(a)*T<0.6
                 startoffset=0.06;
@@ -75,7 +75,7 @@ for i=1:size(ecg_p,1)
             twave_beg =(startoffset / T);
             %twave_end = twave_beg + ((0.35-startoffset) / T);
             %temp = ecg(twave_beg:twave_end);
-            tempSignalMat(v,:)=heartBeatMatrix{v}(twave_beg:(twave_beg-1+TwindowLength));
+            tempSignalMat(v,:)=heartBeatMatrix{a+v-1}(twave_beg:(twave_beg-1+TwindowLength));
             starts(v)=twave_beg;
         end
         TempMed=median(tempSignalMat);
@@ -89,7 +89,7 @@ for i=1:size(ecg_p,1)
                     bestStart=starts(v)+u/(1000*T);
                 end    
             end
-            signalMat(v,:)=heartBeatMatrix{v}(bestStart:(bestStart-1+TwindowLength));
+            signalMat(v+a-1,:)=heartBeatMatrix{v+a-1}(bestStart:(bestStart-1+TwindowLength));
         end
             %temp=ecg_h(t_h(a):t_h(a+1));
             %plot(1:length(temp),temp);
