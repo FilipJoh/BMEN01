@@ -2,4 +2,8 @@
 ProjectTwaveAlternans2016/
 ProjectTwaveAlternans2016.zip/
 oldstuff
+#plots
+images
+#matrices and active files
 *.mat
+*.asv
