@@ -88,11 +88,11 @@ for i=1:size(ecg_p,1)
         signalMat(v,:)=heartBeatCell{v}(bestStart:(bestStart-1+TwindowLength));
     end
 
-[n,Wn]=buttord([0.11 0.38],[0.14 0.35],3,60);
-[B,A]=butter(n,Wn,'stop');
+[n,Wn]=buttord([0.1 0.39],[0.14 0.35],3,60);
+[B,A]=butter(16,Wn,'stop');
 
 for a=1:size(nbrOfBeats)
-    y=filtfilt(B,A,signalMat(a,:)); 
+    %y=filtfilt(B,A,signalMat(a,:)); 
 end
     
    
