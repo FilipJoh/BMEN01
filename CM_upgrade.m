@@ -17,9 +17,9 @@ T = 1 / F_s;
 %% TEST
 
 %% Human
-% ecg_p=ecg_h;
-% t=t_h;
-% nbrOfBeats=find(t<length(ecg_p),1,'last')-1;
+ecg_p=ecg_h;
+t=t_h;
+nbrOfBeats=find(t<length(ecg_p),1,'last')-1;
 
 %% Pig one
 % ecg_p=ecg_p1;
@@ -28,9 +28,9 @@ T = 1 / F_s;
 
 
 %% Pig two
-ecg_p=ecg_p2;
-t=t_p2;
-nbrOfBeats=length(t)-2; 
+% ecg_p=ecg_p2;
+% t=t_p2;
+% nbrOfBeats=length(t)-2; 
 
 % create a lowpass filter
 cutFreq = 50; %Hz
@@ -97,7 +97,7 @@ end
     
    
 %detection    
-    window=7;   
+    window=15;   
     ACI=zeros(nbrOfBeats,1);
     ACM=zeros(nbrOfBeats,1);
     ACMmatrix=[];
