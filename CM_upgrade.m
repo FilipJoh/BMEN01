@@ -22,9 +22,9 @@ T = 1 / F_s;
 %% TEST
 
 %% Human
-% ecg_p=ecg_h;
-% t=t_h;
-% nbrOfBeats=find(t<length(ecg_p),1,'last')-1;
+ecg_p=ecg_h;
+t=t_h;
+nbrOfBeats=find(t<length(ecg_p),1,'last')-1;
 
 %% Pig one
 % ecg_p=ecg_p1;
@@ -33,9 +33,9 @@ T = 1 / F_s;
 
 
 %% Pig two
-ecg_p=ecg_p2;
-t=t_p2;
-nbrOfBeats=length(t)-2; 
+% ecg_p=ecg_p2;
+% t=t_p2;
+% nbrOfBeats=length(t)-2; 
 
 % create a lowpass filter
 cutFreq = 50; %Hz
@@ -102,7 +102,7 @@ end
     
 %   Tmdn=median(signalMat);
 %detection    
-    window=30;   
+    window=7;   
     ACI=zeros(nbrOfBeats,1);
     ACM=zeros(nbrOfBeats,1);
     ACMmatrix=[];
@@ -136,8 +136,8 @@ end
     %figure;
     samples=1:length(ACMcomp);
     ACIsamples=find(alt);
-    ACItime=t(find(alt))*T/60;
-    time=t(1:length(ACMcomp))*T/60; %minutes
+    ACItime=t(find(alt))*T;
+    time=t(1:length(ACMcomp))*T; %minutes
     
     for j=1:size(ACM,1)
         if alt(j)==1
@@ -145,9 +145,9 @@ end
         end
     end
     hold on;
-    plot(samples,ACMcomp,'r','LineWidth',1)
+    plot(time,ACMcomp,'r','LineWidth',1)
     hold on;
-    plot(ACIsamples,zeros(length(ACItime),1),'b.','LineWidth',5);
+    plot(ACItime,zeros(length(ACItime),1),'b.','LineWidth',5);
     
     %figure;
     %contourf(ACMmatrix,'EdgeColor','none')

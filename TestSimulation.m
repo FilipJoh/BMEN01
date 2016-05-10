@@ -32,8 +32,8 @@ nbrOfBeats=length(t)-2;
 signalMat=zeros(127,beatSamples+1);
 for a=1:127
    signalMat(a,:)=TWA(t(1):t(2));  
-   if a>40 && a<80
-        signalMat(a,:)=(1*(-1)^a)+signalMat(a,:);
+   if a>20 && a<100
+        signalMat(a,:)=(0.5*(-1)^a)+signalMat(a,:);
    end    
 end
 ecg_p=TWA;
